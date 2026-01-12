@@ -17,6 +17,8 @@ app.use(
 	})
 );
 
+app.set('trust proxy', true);
+
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
 	max: 100,
@@ -49,7 +51,6 @@ const main = async (code, language, res) => {
 
 // Update your route to pass 'res'
 app.post('/api/explain-code', async (req, res) => {
-	console.log(process.env.FRONTEND_URL);
 	const { code, language } = req.body;
 	if (!code || !language) return res.status(400).json({ error: 'Missing fields' });
 
