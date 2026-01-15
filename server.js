@@ -1,7 +1,6 @@
 import 'dotenv/config.js';
 import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { GoogleGenAI } from '@google/genai';
 
@@ -19,23 +18,17 @@ app.use(
 
 app.set('trust proxy', true);
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
-	max: 100,
-	message: 'Too many requests from this IP, please try again after some time',
-});
-app.use(limiter);
-
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 
 const main = async (code, language, res) => {
 	const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 	try {
 		const response = await ai.models.generateContent({
 			model: 'gemini-2.5-flash-lite', // Use the latest flash model
-			systemInstruction:
-				'You are a concise code reviewer. please review the code as easily as possible. I hope your answer does not exceed 500 words but the document should be fully formatted. do not just stop while describing.',
-			contents: `Analyze this ${language} code: ${code}`,
+			systemInstruction: '',
+			contents: `Analyze this ${language} code: ${code}
+			You are a concise code reviewer. please review the code as easily as possible. I hope your answer does not exceed 300 words but the document should be fully formatted. do not just stop while describing.
+			`,
 			config: {
 				// maxOutputTokens: 250,
 				temperature: 0.2,
